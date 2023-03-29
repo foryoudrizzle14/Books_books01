@@ -53,10 +53,10 @@ def api_register():
         # 필수 입력 항목이 비어 있는지 확인하고, 하나라도 비어 있다면 오류 메시지를 반환함
         return jsonify({'result': '입력되지 않은 값이 있습니다.'})
     
-    if pw_receive != retype_pw_receive:
-        # 입력받은 비밀번호가 일치하는지 하고 일치하지 않으면 오류 메세지를 반환함
-        # 클라이언트에서 처리할 수 있음 -> js로 구현하여 api 요청하는 횟수를 줄이도록 개선 할 것. 
-        return jsonify({'result': '비밀번호가 일치하지 않습니다.'})
+    # if pw_receive != retype_pw_receive:
+    #     # 입력받은 비밀번호가 일치하는지 하고 일치하지 않으면 오류 메세지를 반환함
+    #     # 클라이언트에서 처리할 수 있음 -> js로 구현하여 api 요청하는 횟수를 줄이도록 개선 할 것. 
+    #     return jsonify({'result': '비밀번호가 일치하지 않습니다.'})
     
     # 입력받은 사용자 ID가 이미 사용 중인지 확인
     if db.user.find_one({'$or': [{'id': id_receive}, {'nick': nickname_receive}]}):
