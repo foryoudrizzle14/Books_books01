@@ -104,4 +104,57 @@ def api_login():
 
 
 if __name__ == '__main__':
+    app.run('0.0.0.0', port=5001, debug=True)#로그인 
+@app.route("/")
+def home():
+    if "userId" in session:
+        return render_template("login.html", nickname = session.get("userId"), login = True)
+    else: 
+        return render_template("login.html", login = False)
+    
+#이제 "/login" 경로는 GET 요청 대신 POST 요청을 수신하고 사용자 이름과 암호가 유효한 경우 인코딩된 토큰이 포함된 JSON 응답을 반환합니다.
+@app.route("/login", methods=["POST"])
+def login():
+    global ID, PW
+    _id_ = request.form.get("loginId")
+    _password_ = request.form.get("loginPw")
+
+
+# 토큰에는 사용자 ID와 현재 시간으로부터 30분의 만료 시간이 포함됩니다.
+    if ID == _id_ and PW == _password_:
+        token = jwt.encode({"userId": _id_, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.secret_key)
+        session["token"] = token
+        return jsonify({"token": token.decode("UTF-8")})
+    else:
+        return jsonify({"error": "Invalid username or password"}), 401
+
+#"/logout" 경로는 이제 세션에서 "userId" 대신 "token" 키를 제거합니다.
+@app.route("/logout")
+def logout():
+    session.pop("token", None)
+    return redirect(url_for("login"))
+
+#인증이 필요한 보호 자원의 예로 "/protected" 경로가 추가되었습니다.
+@app.route("/protected")
+def protected():
+    token = session.get("token")
+    if not token:
+        return jsonify({"error": "Unauthorized access"}), 401
+
+    try:
+        #JWT 라이브러리를 가져오고 토큰 인코딩 및 디코딩을 위한 비밀 키를 설정합니다.
+        # 세션에 토큰이 있는지 확인하고 있으면 비밀 키를 사용하여 토큰을 디코딩하고 페이로드에서 사용자 ID를 검색합니다. 
+        payload = jwt.decode(token, app.secret_key)
+        userId = payload["userId"]
+        return render_template("protected.html", userId=userId)
+    
+# 토큰이 만료되었거나 유효하지 않은 경우 대신 오류 응답을 반환합니다.
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Token expired"}), 401
+    
+    #글로벌 변수 ID와 PW는 요청 양식에서 사용자 이름과 암호를 대신 받기 때문에 더 이상 사용되지 않습니다.
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid token"}), 401
+
+if __name__ == '__main__':
     app.run('0.0.0.0', port=5001, debug=True)
