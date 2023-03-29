@@ -29,11 +29,12 @@ import hashlib
 def home():
     return render_template('index.html')
 
-#회원 가입 페이지 표시
+# 회원 가입 페이지 표시
 @app.route('/register')
 def register():
     return render_template('register.html')
 
+# 로그인 페이지 호출
 @app.route('/login')
 def login():
     return render_template('login.html')
@@ -67,7 +68,6 @@ def api_register():
     db.user.insert_one({'id': id_receive, 'pw': pw_hash, 'nick': nickname_receive})
 
     return jsonify({'result': 'success'}) #성공 메세지 반환
-
 
 #김보슬 작성
     # [로그인 API]

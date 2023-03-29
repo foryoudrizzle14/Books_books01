@@ -15,33 +15,72 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <style></style>
     <script>
+      $(document).ready(function () {
+        close_box()
+      });
       function register() {
-        $.ajax({
-          type: "POST",
-          url: "/api/register",
-          data: {
-            id_give: $("#userid").val(),
-            pw_give: $("#userpw").val(),
-            retype_pw_give: $("#user_pw_retype").val(),
-            nickname_give: $("#usernick").val(),
-          },
-          success: function (response) {
-            // 회원가입 성공시 로그인 화면으로 이동
-            if (response["result"] == "success") {
-              alert("회원가입이 완료되었습니다.");
-              window.location.href = "/login";
-            } else { // 화원 가입 실패시 서버로부터 반환 받은 메세지를 alert으로 출력
-              alert(response["result"]);
-            }
-          },
+          if (check_pw(pass)) {
+            $.ajax({
+            type: "POST",
+            url: "/api/register",
+            data: {
+              id_give: $("#userid").val(),
+              pw_give: $("#userpw").val(),
+              retype_pw_give: $("#user_pw_Confirm").val(),
+              nickname_give: $("#usernick").val(),
+            },
+            success: function (response) {
+              // 회원가입 성공시 로그인 화면으로 이동
+              if (response["result"] == "success") {
+                alert("회원가입이 완료되었습니다.");
+                window.location.href = "/login";
+              } else { // 화원 가입 실패시 서버로부터 반환 받은 메세지를 alert으로 출력
+                alert(response["result"]);
+              }
+            },
         });
+        }
+        
       }
-    //   function open_box() {
-    //     $("#post-box").show();
-    //   }
-    //   function close_box() {
-    //     $("#post-box").hide();
-    //   }
+      function check_pw(){
+        var pw = document.getElementById('userpw').value;
+
+        if(pw.length < 6 || pw.length>16){
+          alert('비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.');
+          document.getElementById('userpw').value='';
+        }
+        if(document.getElementById('userpw').value !='' && document.getElementById('user_pw_Confirm').value!=''){
+          if(document.getElementById('userpw').value==document.getElementById('user_pw_Confirm').value){
+            document.getElementById('check').innerHTML='비밀번호가 일치합니다.'
+            document.getElementById('check').style.color='blue';
+            return true
+          } else{
+            document.getElementById('check').innerHTML='비밀번호가 일치하지 않습니다.';
+            document.getElementById('check').style.color='red';
+            document.getElementById('userpw').value='';
+            document.getElementById('user_pw_Confirm').value='';
+            return false
+          }
+        }
+      }
+      function is_checked() {
+        const checkbox = document.getElementById('my_checkbox');
+
+        const is_checked = checkbox.checked;
+        if (is_checked) {
+          open_box()
+        } else {
+          close_box()
+        }
+
+      }
+
+      function open_box() {
+            $('#submit').show()
+        }
+        function close_box() {
+            $('#submit').hide()
+        }
     </script>
   </head>
   <body>
@@ -79,7 +118,7 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="password" class="input" id="userpw" placeholder="My Password"/>
+                <input type="password" class="input" id="userpw" placeholder="Password" onchange="check_pw()"/>
               </div>
             </div>
           </div>
@@ -91,12 +130,14 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="password" class="input" id="user_pw_retype" placeholder="Retype my Password"/>
+                <input type="password" class="input" id="user_pw_Confirm" placeholder="Confirm Password" onchange="check_pw()"/> <span id="check"> </span>
               </div>
             </div>
           </div>
         </div>
-        <button class="button is-primary" onclick="register()">회원가입</button>
+            <input type='checkbox' name='pass' value='Confirm' id = 'my_checkbox' onclick='is_checked()'/>입력한 값이 모두 올바르게 적용되었는지 확인했습니다.
+          </p>
+            <button type="submit" class="button is-primary" id ="submit" onclick="register()">회원가입</button>
       </div>
     </div>
   </body>
