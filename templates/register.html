@@ -43,13 +43,17 @@
         });
         }
       }
+      function check_pw_length() {
+        var pw = document.getElementById('userpw').value;
+        if(pw.length < 6 || pw.length>16){
+          alert('비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.');
+          document.getElementById('userpw').value='';
+        }
+      }
       function check_pw(){
         var pw = document.getElementById('userpw').value;
 
-        // if(pw.length < 6 || pw.length>16){
-        //   alert('비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.');
-        //   document.getElementById('userpw').value='';
-        // }
+        
         if(document.getElementById('userpw').value !='' && document.getElementById('user_pw_Confirm').value!=''){
           if(document.getElementById('userpw').value==document.getElementById('user_pw_Confirm').value){
             document.getElementById('check').innerHTML='비밀번호가 일치합니다.'
@@ -119,7 +123,7 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="password" class="input" id="userpw" placeholder="Password" onchange="check_pw()"/>
+                <input type="password" class="input" id="userpw" placeholder="Password" onchange="check_pw(); check_pw_length()"/>
               </div>
             </div>
           </div>
