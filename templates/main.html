@@ -4,16 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>북스북스 | 로그인전페이지</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&display=swap" rel="stylesheet">
+    
+ 
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap" rel="stylesheet">
+
     <style>
+
         .deco0 {
             margin: 20px auto;
-            width: 500px;
+            width: 700px;
         }
 
         .login-title {
             color: rgb(145, 25, 25);
-            width: 500px;
-            height: 200px;
+            width: 700px;
+            /* height: 200px; */
         
             background-image: url();
             background-position: center;
@@ -22,6 +34,9 @@
             border-radius: 10px;
             text-align: center;
             padding: 20px;
+            font-size: 45px;
+            font-style: bold
+          ;
            
 
         }
@@ -35,26 +50,47 @@
         }
 
         .click {
-          text-align: center;
+          text-align: right;
+          margin-bottom: 15px;
+          
           
         }
 
         .name {
 
-          text-align: right;
+          text-align: center;
+          font-family: 'Nanum Brush Script', cursive;
+          font-size: 30px;
         }
+        .mytitle { 
+          font-family: 'Gugi', cursive;
+          font-size: 85px;
+        }
+
+        .mysubtitle{
+
+          font-family: 'Gugi', cursive;
+          font-size: 55px;
+
+        }
+
+        
+
+
+        
 
     
         
 
     </style>
+
 </head>
 <body>
 <div class="deco0">
 
     <div class="login-title">
-        <h1>북스북스</h1>
-        <h2><나만의 독서 한줄평></h2>
+        <h1 class="mytitle">북스북스</h1>
+        <h2 class="mysubtitle"><나만의 독서 한줄평></h2>
     </div>
 
     <div class="box">
@@ -63,8 +99,9 @@
     </div>
 
     <div>
-      <h5 class="click"> 지금 시작하기!   <button type ="button" class="btn-j btn-lg btn-block btn-success" onclick="location.href='/register'">회원가입하기</button>
-      <h5 class="click"> 이미 회원이신가요?   <button type ="button" class="btn-j btn-lg btn-block btn-success" onclick="location.href='./login'">로그인하기</button></h5>
+      
+      <p class="click">  <button class="button is-primary" onclick="location.href='/register'">지금 시작하기!</button> </p> 
+      <p class="click"> <button class="button is-success" onclick="location.href='./login'"> 로그인하기 </button> </p>
     </div>
 
 
