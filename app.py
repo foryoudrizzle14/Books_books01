@@ -32,6 +32,10 @@ import hashlib
 def home():
     return render_template('index.html')
 
+@app.route('/main')
+def main():
+    return render_template('main.html')
+
 # 회원 가입 페이지 표시
 @app.route('/register')
 def register():
