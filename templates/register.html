@@ -15,85 +15,90 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <style></style>
     <script>
+      
       $(document).ready(function () {
-        close_box()
+        // 페이지 로드시 회원 가입 버튼을 노출시키지 않기 위한 코드
+        close_box();
       });
-      var pass = true
+
       function register() {
         // 서버에 입력된 회원 정보를 전달하는 함수
-          check_pw()
-          // 예상되는 버그를 방지하기 위해 암호 일치 여부를 다시 검사함 
-          // 검사 결과에 따라 pass 값이 true인 경우 코드를 실행
-          if (pass == true) {
-            $.ajax({
-              type: "POST",
-              url: "/api/register",
-              data: {
-                id_give: $("#userid").val(),
-                pw_give: $("#userpw").val(),
-                retype_pw_give: $("#user_pw_Confirm").val(),
-                nickname_give: $("#usernick").val(),
-              },
-              success: function (response) {
-                // 회원가입 성공시 로그인 화면으로 이동
-                if (response["result"] == "success") {
-                  alert("회원가입이 완료되었습니다.");
-                  window.location.href = "/login";
-                } else { // 화원 가입 실패시 서버로부터 반환 받은 메세지를 alert으로 출력
-                  alert(response["result"]);
-                }
-              },
-            });
-          }
-          // 암호 일치 여부를 검사한 결과가 출력되고 있으므로 false인 경우 별도의 코드를 실행하지 않음
-        }
-      function check_pw_length() {
-        // 입력된 비밀번호 길이를 검사하여 조건에 맞지 않는 경우 alert 출력
-        var pw = document.getElementById('userpw').value;
-        if(pw.length < 6 || pw.length>16){
-          alert('비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.');
-          document.getElementById('userpw').value='';
+        if (check_pw()) { // 비밀번호 체크 true의 경우에만 API 호출
+          $.ajax({
+            type: "POST",
+            url: "/api/register",
+            data: {
+              id_give: $("#userid").val(),
+              pw_give: $("#userpw").val(),
+              retype_pw_give: $("#user_pw_Confirm").val(),
+              nickname_give: $("#usernick").val(),
+            },
+            success: function (response) {
+              // 회원가입 성공시 로그인 화면으로 이동
+              if (response["result"] == "success") {
+                alert("회원가입이 완료되었습니다.");
+                window.location.href = "/login";
+              } else {
+                // 화원 가입 실패시 서버로부터 반환 받은 메세지를 alert으로 출력
+                alert(response["result"]);
+              }
+            },
+          });
         }
       }
-      function check_pw(){
+
+      function check_pw_length() {
+        // 입력된 비밀번호 길이를 검사하여 조건에 맞지 않는 경우 alert 출력
+        var pw = document.getElementById("userpw").value;
+        if (pw.length < 6 || pw.length > 16) {
+          alert("비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.");
+          document.getElementById("userpw").value = "";
+        }
+      }
+
+      function check_pw() {
         // 비밀번호 유효성 검사
         // 비밀번호와 비밀번호 확인의 값을 검사하여 결과 출력
-        var pw = document.getElementById('userpw').value;
-        var confirmPw = document.getElementById('user_pw_Confirm').value;
-        var matchMsg = '비밀번호가 일치합니다.';
-        var unmatchMsg = '비밀번호가 일치하지 않습니다.';
-        var check = document.getElementById('check');
-  
-        if (pw && confirmPw && pw === confirmPw) {
-          check.textContent = matchMsg;
-          check.style.color = 'blue';
-          pass = true;
-        } else {
-          check.textContent = unmatchMsg;
-          check.style.color = 'red';
-          pw = '';
-          confirmPw = '';
-          pass = false;
+        var pw = document.getElementById("userpw").value;
+        var confirmPw = document.getElementById("user_pw_Confirm").value;
+        var matchMsg = "비밀번호가 일치합니다.";
+        var unmatchMsg = "비밀번호가 일치하지 않습니다.";
+        var check = document.getElementById("check");
+
+        if (pw && confirmPw) {
+          if (pw === confirmPw) {
+            // 비밀번호가 일치하는 경우
+            check.textContent = matchMsg;
+            check.style.color = "blue";
+            return true;
+          } else {
+            // 비밀번호가 일치하지 않는 경우 메세지를 출력하고 두 입력 값을 초기화함
+            check.textContent = unmatchMsg;
+            check.style.color = "red";
+            pw = "";
+            confirmPw = "";
+            return false;
+          }
         }
       }
       function is_checked() {
-        // 회원 가입 의사를 체크하기 위한 체크 박스 확인 함수 
-        const checkbox = document.getElementById('my_checkbox');
-        const is_checked = checkbox.checked;
-        if (is_checked) { 
-          open_box()
-        } else { // 체크박스가 해제되어 있는 경우 회원 가입 버튼을 숨김
-          close_box()
+        // 회원 가입 의사를 체크하기 위한 체크 박스 확인 함수
+        const is_checked = $("#my_checkbox").is(":checked");
+        if (is_checked) {
+          open_box();
+        } else {  
+          close_box();
         }
-
       }
 
       function open_box() {
-            $('#submit').show()
-        }
-        function close_box() {
-            $('#submit').hide()
-        }
+        $('#submit').show()
+      }
+
+      function close_box() {
+        $('#submit').hide()
+      }
+    
     </script>
   </head>
   <body>
