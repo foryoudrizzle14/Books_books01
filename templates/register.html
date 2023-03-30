@@ -47,15 +47,6 @@
         }
       }
 
-      function check_pw_length() {
-        // 입력된 비밀번호 길이를 검사하여 조건에 맞지 않는 경우 alert 출력
-        var pw = document.getElementById("userpw").value;
-        if (pw.length < 6 || pw.length > 16) {
-          alert("비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.");
-          document.getElementById("userpw").value = "";
-        }
-      }
-
       function check_pw() {
         // 비밀번호 유효성 검사
         // 비밀번호와 비밀번호 확인의 값을 검사하여 결과 출력
@@ -63,9 +54,17 @@
         var confirmPw = document.getElementById("user_pw_Confirm").value;
         var matchMsg = "비밀번호가 일치합니다.";
         var unmatchMsg = "비밀번호가 일치하지 않습니다.";
+        var lengthMsg = "비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.";
         var check = document.getElementById("check");
 
-        if (pw && confirmPw) {
+        if (pw.length < 6 || pw.length > 16) {
+          // 비밀번호의 글자수를 세서 6글자보다 작거나 16글자보다 많으면 실행됨
+          check.textContent = lengthMsg;
+          check.style.color = "red";
+          return false; // false 값을 반환하여 API 호출되지 않도록 함
+        }
+
+        if (pw && confirmPw) { // 비밀번호와 비밀번호 확인 값이 비어 있지 않을 때만 실행됨
           if (pw === confirmPw) {
             // 비밀번호가 일치하는 경우
             check.textContent = matchMsg;
@@ -77,7 +76,7 @@
             check.style.color = "red";
             pw = "";
             confirmPw = "";
-            return false;
+            return false; // false 값을 반환하여 API 호출되지 않도록 함
           }
         }
       }
@@ -136,7 +135,7 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="password" class="input" id="userpw" placeholder="Password" onchange="check_pw(); check_pw_length()"/>
+                <input type="password" class="input" id="userpw" placeholder="Password" onchange="check_pw()"/>
               </div>
             </div>
           </div>
@@ -148,7 +147,7 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="password" class="input" id="user_pw_Confirm" placeholder="Confirm Password" onchange="check_pw()"/> <span id="check"> </span>
+                <input type="password" class="input" id="user_pw_Confirm" placeholder="Confirm Password"/> <span id="check"> </span>
               </div>
             </div>
           </div>
