@@ -47,6 +47,15 @@
         }
       }
 
+      function check_pw_length() {
+        // 입력된 비밀번호 길이를 검사하여 조건에 맞지 않는 경우 alert 출력
+        var pw = document.getElementById("userpw").value;
+        if (pw.length < 6 || pw.length > 16) {
+          alert("비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.");
+          document.getElementById("userpw").value = "";
+        }
+      }
+
       function check_pw() {
         // 비밀번호 유효성 검사
         // 비밀번호와 비밀번호 확인의 값을 검사하여 결과 출력
