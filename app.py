@@ -94,7 +94,7 @@ def api_login():
         # JWT 토큰 생성
         payload = {
             'id': id_receive,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=100)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=10000)
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
