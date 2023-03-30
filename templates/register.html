@@ -15,7 +15,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <style></style>
     <script>
-      
       $(document).ready(function () {
         // 페이지 로드시 회원 가입 버튼을 노출시키지 않기 위한 코드
         close_box();
@@ -23,7 +22,8 @@
 
       function register() {
         // 서버에 입력된 회원 정보를 전달하는 함수
-        if (check_pw()) { // 비밀번호 체크 true의 경우에만 API 호출
+        if (check_pw()) {
+          // 비밀번호 체크 true의 경우에만 API 호출
           $.ajax({
             type: "POST",
             url: "/api/register",
@@ -73,7 +73,8 @@
           return false; // false 값을 반환하여 API 호출되지 않도록 함
         }
 
-        if (pw && confirmPw) { // 비밀번호와 비밀번호 확인 값이 비어 있지 않을 때만 실행됨
+        if (pw && confirmPw) {
+          // 비밀번호와 비밀번호 확인 값이 비어 있지 않을 때만 실행됨
           if (pw === confirmPw) {
             // 비밀번호가 일치하는 경우
             check.textContent = matchMsg;
@@ -94,19 +95,18 @@
         const is_checked = $("#my_checkbox").is(":checked");
         if (is_checked) {
           open_box();
-        } else {  
+        } else {
           close_box();
         }
       }
 
       function open_box() {
-        $('#submit').show()
+        $("#submit").show();
       }
 
       function close_box() {
-        $('#submit').hide()
+        $("#submit").hide();
       }
-    
     </script>
   </head>
   <body>
@@ -120,7 +120,13 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="text" class="input" id="userid" aria-describedby="emailHelp" placeholder="My ID"/>
+                <input
+                  type="text"
+                  class="input"
+                  id="userid"
+                  aria-describedby="emailHelp"
+                  placeholder="My ID"
+                />
               </div>
             </div>
           </div>
@@ -132,7 +138,12 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="text" class="input" id="usernick" placeholder="My Nickname"/>
+                <input
+                  type="text"
+                  class="input"
+                  id="usernick"
+                  placeholder="My Nickname"
+                />
               </div>
             </div>
           </div>
@@ -144,7 +155,13 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="password" class="input" id="userpw" placeholder="Password" onchange="check_pw()"/>
+                <input
+                  type="password"
+                  class="input"
+                  id="userpw"
+                  placeholder="Password"
+                  onchange="check_pw()"
+                />
               </div>
             </div>
           </div>
@@ -156,16 +173,37 @@
           <div class="field-body">
             <div class="field">
               <div class="control">
-                <input type="password" class="input" id="user_pw_Confirm" placeholder="Confirm Password"/> <span id="check"> </span>
+                <input
+                  type="password"
+                  class="input"
+                  id="user_pw_Confirm"
+                  placeholder="Confirm Password"
+                />
+                <span id="check"> </span>
               </div>
             </div>
           </div>
         </div>
-            <input type='checkbox' name='pass' value='Confirm' id = 'my_checkbox' onclick='is_checked()'/>북스북스 서비스 가입에 동의합니다.
-          </p>
-            <button type="submit" class="button is-primary" id ="submit" onclick="register()">회원가입</button>
-            <button class="button is-light" onclick="location.href='/'">취소</button>
-            <!-- <button type="submit" class="button is-primary" id ="" onclick="location.href='/'">취소</button> -->
+        <input
+          type="checkbox"
+          name="pass"
+          value="Confirm"
+          id="my_checkbox"
+          onclick="is_checked()"
+        />북스북스 서비스 가입에 동의합니다.
+        <p>
+          <button
+            type="submit"
+            class="button is-primary"
+            id="submit"
+            onclick="register()"
+          >
+            회원가입
+          </button>
+          <button class="button is-light" onclick="location.href='/'">
+            취소
+          </button>
+        </p>
       </div>
     </div>
   </body>
