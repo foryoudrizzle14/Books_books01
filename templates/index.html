@@ -86,6 +86,14 @@
         .mybtns>button {
             margin-right: 10px;
         }
+
+        .bottom {
+            text-align: center;
+        }
+
+        .card_btn {
+            text-align: right;
+        }
     </style>
     <script>
         $(document).ready(function () {
@@ -93,11 +101,12 @@
         });
 
         function listing() {
-            fetch('/movie').then((res) => res.json()).then((data) => {
-                let rows = data['result']
+            fetch('/booksbooks').then((res) => res.json()).then((data) => {
+                let rows = JSON.parse(data['result']);
                 $('#cards-box').empty()
                 rows.forEach((a) => {
-                    let comment = a['comment']
+                    let id = a['_id']['$oid'];
+                    let review = a['review']
                     let title = a['title']
                     let desc = a['desc']
                     let image = a['image']
@@ -106,14 +115,27 @@
                     let star_repeat = '⭐'.repeat(star)
 
                     let temp_html = `<div class="col">
-                                        <div class="card h-100">
-                                            <img src="${image}"
-                                                class="card-img-top">
-                                            <div class="card-body">
-                                                <h5 class="card-title">${title}</h5>
-                                                <p class="card-text">${desc}</p>
-                                                <p>${star_repeat}</p>
-                                                <p class="mycomment">${comment}</p>
+                                        <div class="card mb-3" style="max-width: 540px;">
+                                            <div class="row g-0">
+                                                <div class="col-md-4">
+                                                    <img src="${image}"
+                                                        class="img-fluid rounded-start" alt="...">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <h4 class="card-title">${title}</h4>
+                                                        <h5 id = 'edit_star'>${star_repeat}</h5>
+                                                    </div>
+                                                </div>
+                                                <div class="bottom">
+                                                    <p class="card-desc">[책 소개]: ${desc.substr(0, 80) + "..."}</p>
+                                                    <h4>---[나의 한 줄평]---</h4>
+                                                    <p id = 'content' class="card-review">${review}</p>
+                                                </div>
+                                                <div class="card_btn">
+                                                    <button onclick="edit_card()" id="edit-btn" type="button" class="btn btn-dark">수정</button>
+                                                    <button onclick="delete_card('${id}')" type="button" class="btn btn-dark">삭제</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>`
@@ -125,19 +147,32 @@
 
         function posting() {
             let url = $('#url').val()
-            let comment = $('#comment').val()
+            let review = $('#review').val()
             let star = $('#star').val()
 
             let formData = new FormData();
             formData.append("url_give", url);
-            formData.append("comment_give", comment);
+            formData.append("review_give", review);
             formData.append("star_give", star)
 
-            fetch('/movie', { method: "POST", body: formData }).then((res) => res.json()).then((data) => {
+            fetch('/booksbooks', { method: "POST", body: formData }).then((res) => res.json()).then((data) => {
                 alert(data['msg'])
                 window.location.reload()
             })
         }
+
+        
+        function delete_card(id) {
+            let delete_id = id;
+            let formData = new FormData();
+            formData.append('delete_id', delete_id);
+
+            fetch(`/booksbooks/delete`, { method: 'POST', body: formData }).then((res) => res.json()).then((data) => {
+                alert(data['msg'])
+                window.location.reload();
+            })
+        }
+
 
         function open_box() {
             $('#post-box').show()
@@ -170,64 +205,137 @@
             </select>
         </div>
         <div class="form-floating">
-            <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
-            <label for="floatingTextarea2">코멘트</label>
+            <textarea id="review" class="form-control" placeholder="Leave a comment here"></textarea>
+            <label for="floatingTextarea2">여기에 한 줄평을 남겨주세요</label>
         </div>
         <div class="mybtns">
-            <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
+            <button onclick="posting()" type="button" class="btn btn-dark">저장하기</button>
             <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
         </div>
     </div>
     <div class="mycards">
         <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
             <div class="col">
-                <div class="card h-100">
-                    <img src="https://movie-phinf.pstatic.net/20210728_221/1627440327667GyoYj_JPEG/movie_image.jpg"
-                        class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">도서명이 들어갑니다</h5>
-                        <p class="card-text">여기에 도서에 대한 설명이 들어갑니다.</p>
-                        <p>⭐⭐⭐</p>
-                        <p class="mycomment">나의 한줄평을 씁니다</p>
+                <div class="card mb-3" style="max-width: 540px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                alt="...">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h4 class="card-title">책 제목이 들어가요</h4>
+                                <h4>[나의 별점은]: 별점</h4>
+                            </div>
+                        </div>
+                        <div class="bottom">
+                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                        </div>
+                        <div class="card_btn">
+                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="card h-100">
-                    <img src="https://movie-phinf.pstatic.net/20210728_221/1627440327667GyoYj_JPEG/movie_image.jpg"
-                        class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">도서명이 들어갑니다</h5>
-                        <p class="card-text">여기에 도서에 대한 설명이 들어갑니다.</p>
-                        <p>⭐⭐⭐</p>
-                        <p class="mycomment">나의 한줄평을 씁니다</p>
+                <div class="card mb-3" style="max-width: 540px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                alt="...">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h4 class="card-title">책 제목이 들어가요</h4>
+                                <h4>[나의 별점은]: 별점</h4>
+                            </div>
+                        </div>
+                        <div class="bottom">
+                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                        </div>
+                        <div class="card_btn">
+                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="card h-100">
-                    <img src="https://movie-phinf.pstatic.net/20210728_221/1627440327667GyoYj_JPEG/movie_image.jpg"
-                        class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">도서명이 들어갑니다</h5>
-                        <p class="card-text">여기에 도서에 대한 설명이 들어갑니다.</p>
-                        <p>⭐⭐⭐</p>
-                        <p class="mycomment">나의 한줄평을 씁니다</p>
+                <div class="card mb-3" style="max-width: 540px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                alt="...">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h4 class="card-title">책 제목이 들어가요</h4>
+                                <h4>[나의 별점은]: 별점</h4>
+                            </div>
+                        </div>
+                        <div class="bottom">
+                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                        </div>
+                        <div class="card_btn">
+                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="card h-100">
-                    <img src="https://movie-phinf.pstatic.net/20210728_221/1627440327667GyoYj_JPEG/movie_image.jpg"
-                        class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">도서명이 들어갑니다</h5>
-                        <p class="card-text">여기에 도서에 대한 설명이 들어갑니다.</p>
-                        <p>⭐⭐⭐</p>
-                        <p class="mycomment">나의 한줄평을 씁니다</p>
+                <div class="card mb-3" style="max-width: 540px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                alt="...">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h4 class="card-title">책 제목이 들어가요</h4>
+                                <h4>[나의 별점은]: 별점</h4>
+                            </div>
+                        </div>
+                        <div class="bottom">
+                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                        </div>
+                        <div class="card_btn">
+                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="col">
+                <div class="card mb-3" style="max-width: 540px;">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                alt="...">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h4 class="card-title">책 제목이 들어가요</h4>
+                                <h4>[나의 별점은]: 별점</h4>
+                            </div>
+                        </div>
+                        <div class="bottom">
+                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                        </div>
+                        <div class="card_btn">
+                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </body>
