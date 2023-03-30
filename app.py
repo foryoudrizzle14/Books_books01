@@ -115,5 +115,55 @@ def api_valid():
         # 로그인 정보가 없으면 에러가 납니다!
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
+# Posting으로 받아오기
+@app.route("/booksbooks", methods=["POST"])
+def book_post():
+    url_receive = request.form['url_give']
+    review_receive = request.form['review_give']
+    star_receive = request.form['star_give']
+
+    headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+    data = requests.get(url_receive,headers=headers)
+
+    soup = BeautifulSoup(data.text, 'html.parser')
+
+    title_receive = soup.select_one('#yDetailTopWrap > div.topColRgt > div.gd_infoTop > div > h2').text
+    desc_receive = soup.select_one('#infoset_introduce > div.infoSetCont_wrap > div.infoWrap_txt > div').text
+    #이미지부분 클래스로 받아오기
+    image_receive = soup.select_one('.gImg')['src']
+
+    doc = {
+        'title':title_receive,
+        'desc':desc_receive,
+        'image':image_receive,
+        'review':review_receive,
+        'star':star_receive
+    }
+    db.booksbooks.insert_one(doc)
+
+    return jsonify({'msg':'저장완료!'})
+
+#Listing으로 올리기
+@app.route("/booksbooks", methods=["GET"])
+def book_get():
+    all_book = list(db.booksbooks.find())
+    return jsonify({'result': dumps(all_book)})
+
+#card-수정하기
+@app.route("/booksbooks/edit", methods = ["POST"])
+def edit():
+    receive_id = request.form['e_id']
+    receive_star = request.form['e_star']
+    receive_content = request.form['e_content']
+    db.booksbooks.update_one({"_id" : ObjectId(receive_id)} , {"$set" : {"star" : receive_star, "review" : receive_content}})
+    return jsonify({'msg' : '수정완료!'})
+
+#card-삭제하기
+@app.route("/booksbooks/delete", methods=["POST"])
+def delete():
+    receive_id = request.form['delete_id']
+    db.booksbooks.delete_one({'_id' : ObjectId(receive_id)})
+    return jsonify({'msg' : '삭제완료!'})
+
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5001, debug=True)
