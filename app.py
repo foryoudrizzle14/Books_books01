@@ -1,6 +1,9 @@
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for, flash
 app = Flask(__name__)
 
+from bson.json_util import dumps
+from bson.objectid import ObjectId
+
 import requests
 from bs4 import BeautifulSoup
 
