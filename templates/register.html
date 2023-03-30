@@ -58,19 +58,22 @@
       function check_pw(){
         // 비밀번호 유효성 검사
         // 비밀번호와 비밀번호 확인의 값을 검사하여 결과 출력
-        var pw = document.getElementById('userpw').value;        
-        if(document.getElementById('userpw').value !='' && document.getElementById('user_pw_Confirm').value!=''){
-          if(document.getElementById('userpw').value==document.getElementById('user_pw_Confirm').value){
-            document.getElementById('check').innerHTML='비밀번호가 일치합니다.'
-            document.getElementById('check').style.color='blue';
-            pass = true
-          } else{
-            document.getElementById('check').innerHTML='비밀번호가 일치하지 않습니다.';
-            document.getElementById('check').style.color='red';
-            document.getElementById('userpw').value='';
-            document.getElementById('user_pw_Confirm').value='';
-            pass = false
-          }
+        var pw = document.getElementById('userpw').value;
+        var confirmPw = document.getElementById('user_pw_Confirm').value;
+        var matchMsg = '비밀번호가 일치합니다.';
+        var unmatchMsg = '비밀번호가 일치하지 않습니다.';
+        var check = document.getElementById('check');
+  
+        if (pw && confirmPw && pw === confirmPw) {
+          check.textContent = matchMsg;
+          check.style.color = 'blue';
+          pass = true;
+        } else {
+          check.textContent = unmatchMsg;
+          check.style.color = 'red';
+          pw = '';
+          confirmPw = '';
+          pass = false;
         }
       }
       function is_checked() {
