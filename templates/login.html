@@ -13,7 +13,11 @@
             crossorigin="anonymous"></script>
     <!--jquery cookie를 사용하기 위해-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-
+     <!-- Bulma CSS -->
+     <link
+     rel="stylesheet"
+     href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+   />
     <title>북스북스- 로그인</title>
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <style>
@@ -27,7 +31,7 @@
         }
 
         .title {
-            background-color:rgb(89, 89, 249);
+            background-color:rgb(255, 230, 212);
             padding: 20px 30px;
         }
 
@@ -41,7 +45,7 @@
             border: 3px solid black;
             border-radius: 5px;
             padding: 25px;
-            background-color: rgb(189, 212, 246);
+            background-color: rgb(245, 251, 212);
         }
     </style>
     <script>
@@ -85,7 +89,9 @@
                 <input type="password" class="form-control" aria-describedby="emailHelp"
                        id="input-password" placeholder="">
             </div>
-            <button type="submit" onclick="login()" class="btn btn-dark">로그인</button>
+            <button type="submit" onclick="login()" class="button is-primary">로그인</button>
+            <button type ="button" class="button is-link" onclick="location.href='/register'">회원가입</button>
+            <button type ="button" class="button is-danger is-rounded" onclick="location.href='/main'">뒤로가기</button>
         </div>
     </div>
 </div>
