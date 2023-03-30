@@ -69,92 +69,50 @@ def api_register():
 
     return jsonify({'result': 'success'}) #성공 메세지 반환
 
-#김보슬 작성
-    # [로그인 API]
-    # id, pw를 받아서, DB에서 조회 후, 맞으면 JWT token을 생성하여 반환합니다.
-    # 만약, 조회된 사용자 정보가 없으면, 오류 메시지를 반환합니다.
+# 로그인
 @app.route('/api/login', methods=['POST'])
 def api_login():
     id_receive = request.form['id_give']
     pw_receive = request.form['pw_give']
-    nickname_receive = request.form['nickname_give']
-    
-    if id_receive == "" or pw_receive == "" or nickname_receive =="":
-            # 필수 입력 항목이 비어 있는지 확인하고, 하나라도 비어 있다면 오류 메시지를 반환함
-        return jsonify({'msg': 'error : 입력되지 않은 값이 있습니다.'})
 
-    user = db.user.find_one({'id': id_receive})
-    
-    if not user:
-    # 사용자 정보가 없으면, 오류 메시지를 반환함
-        return jsonify({'msg': 'error : 일치하는 사용자 정보가 없습니다.'})
-    pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest() # 입력받은 비밀번호를 해싱하여 비교함
-    if pw_hash != user['pw']:
-    # 비밀번호가 일치하지 않으면, 오류 메시지를 반환함
-        return jsonify({'msg': 'error : 비밀번호가 일치하지 않습니다.'})
+    # 회원가입 때와 같은 방법으로 pw를 암호화합니다.
+    pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
 
-# JWT 토큰 생성
-    payload = {
-    'user_id': str(user['_id']),  # MongoDB document ID를 문자열로 변환하여 사용
-    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)  # 30분 후 만료
-    }
-    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256').decode('utf-8')
+    # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
+    result = db.user.find_one({'id': id_receive, 'pw': pw_hash})
 
-    return jsonify({'result': 'success', 'token': token})
+    # 찾으면 JWT 토큰을 만들어 발급합니다.
+    if result is not None:
+        # JWT 토큰 생성
+        payload = {
+            'id': id_receive,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=100)
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-
-if __name__ == '__main__':
-    app.run('0.0.0.0', port=5001, debug=True)#로그인 
-@app.route("/")
-def home():
-    if "userId" in session:
-        return render_template("login.html", nickname = session.get("userId"), login = True)
-    else: 
-        return render_template("login.html", login = False)
-    
-#이제 "/login" 경로는 GET 요청 대신 POST 요청을 수신하고 사용자 이름과 암호가 유효한 경우 인코딩된 토큰이 포함된 JSON 응답을 반환합니다.
-@app.route("/login", methods=["POST"])
-def login():
-    global ID, PW
-    _id_ = request.form.get("loginId")
-    _password_ = request.form.get("loginPw")
-
-
-# 토큰에는 사용자 ID와 현재 시간으로부터 30분의 만료 시간이 포함됩니다.
-    if ID == _id_ and PW == _password_:
-        token = jwt.encode({"userId": _id_, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.secret_key)
-        session["token"] = token
-        return jsonify({"token": token.decode("UTF-8")})
+        # token을 줍니다.
+        return jsonify({'result': 'success', 'token': token})
+    # 찾지 못하면
     else:
-        return jsonify({"error": "Invalid username or password"}), 401
+        return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
 
-#"/logout" 경로는 이제 세션에서 "userId" 대신 "token" 키를 제거합니다.
-@app.route("/logout")
-def logout():
-    session.pop("token", None)
-    return redirect(url_for("login"))
 
-#인증이 필요한 보호 자원의 예로 "/protected" 경로가 추가되었습니다.
-@app.route("/protected")
-def protected():
-    token = session.get("token")
-    if not token:
-        return jsonify({"error": "Unauthorized access"}), 401
-
+# 보안: 로그인한 사용자만 통과할 수 있는 API
+@app.route('/api/isAuth', methods=['GET'])
+def api_valid():
+    token_receive = request.cookies.get('mytoken')
     try:
-        #JWT 라이브러리를 가져오고 토큰 인코딩 및 디코딩을 위한 비밀 키를 설정합니다.
-        # 세션에 토큰이 있는지 확인하고 있으면 비밀 키를 사용하여 토큰을 디코딩하고 페이로드에서 사용자 ID를 검색합니다. 
-        payload = jwt.decode(token, app.secret_key)
-        userId = payload["userId"]
-        return render_template("protected.html", userId=userId)
-    
-# 토큰이 만료되었거나 유효하지 않은 경우 대신 오류 응답을 반환합니다.
+        # token을 시크릿키로 디코딩합니다.
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        # payload 안에 id가 들어있습니다. 이 id로 유저정보를 찾습니다.
+        userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
+        return jsonify({'result': 'success', 'nickname': userinfo['nick']})
     except jwt.ExpiredSignatureError:
-        return jsonify({"error": "Token expired"}), 401
-    
-    #글로벌 변수 ID와 PW는 요청 양식에서 사용자 이름과 암호를 대신 받기 때문에 더 이상 사용되지 않습니다.
-    except jwt.InvalidTokenError:
-        return jsonify({"error": "Invalid token"}), 401
+        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        # 로그인 정보가 없으면 에러가 납니다!
+        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5001, debug=True)
