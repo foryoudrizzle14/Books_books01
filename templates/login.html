@@ -23,11 +23,12 @@
 
         .wrap {
             margin: auto;
-            width: 900px;
+            width: 600px;
+            padding-top: 150px;
         }
 
         .title {
-            background-color: gainsboro;
+            background-color: rgb(193, 224, 244);
             padding: 20px 30px;
         }
 
@@ -38,9 +39,10 @@
         .posting-box {
             margin: 10px auto 30px auto;
             width: 500px;
-            border: 3px solid black;
+            border: 3px solid rgb(247, 246, 246);
             border-radius: 5px;
             padding: 25px;
+            background-color: rgb(102, 135, 255);
         }
     </style>
     <script>
@@ -71,7 +73,7 @@
 <body>
 <div class="wrap">
     <div class="title">
-        <h1 class="display-4">로그인</h1>
+        <h1 class="display-4">북스북스_로그인</h1>
         <hr class="my-4">
         <div class="posting-box" id="post-box">
             <div class="form-group">
@@ -81,10 +83,10 @@
             </div>
             <div class="form-group">
                 <label>비밀번호</label>
-                <input type="email" class="form-control" aria-describedby="emailHelp"
+                <input type="password" class="form-control" aria-describedby="emailHelp"
                        id="input-password" placeholder="">
             </div>
-            <button type="submit" onclick="login()" class="btn btn-primary">로그인</button>
+            <button type="submit" onclick="login()" class="btn btn-dark">로그인</button>
         </div>
     </div>
 </div>
