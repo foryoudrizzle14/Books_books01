@@ -25,6 +25,10 @@ import datetime
 # 그렇지 않으면, 개발자(=나)가 회원들의 비밀번호를 볼 수 있으니까요.^^;
 import hashlib
 
+@app.route('/main')
+def main():
+    return render_template('main.html')
+
 @app.route('/')
 def home():
     return render_template('index.html')
