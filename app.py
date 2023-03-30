@@ -28,10 +28,6 @@ import datetime
 # 그렇지 않으면, 개발자(=나)가 회원들의 비밀번호를 볼 수 있으니까요.^^;
 import hashlib
 
-@app.route('/main')
-def main():
-    return render_template('main.html')
-
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -159,10 +155,10 @@ def book_get():
 #card-수정하기
 @app.route("/booksbooks/edit", methods = ["POST"])
 def edit():
-    receive_id = request.form['e_id']
-    receive_star = request.form['e_star']
-    receive_content = request.form['e_content']
-    db.booksbooks.update_one({"_id" : ObjectId(receive_id)} , {"$set" : {"star" : receive_star, "review" : receive_content}})
+    receive_id = request.form['edit_id']
+    receive_star = request.form['star_edit']
+    receive_review = request.form['review_edit']
+    db.booksbooks.update_one({"_id" : ObjectId(receive_id)} , {"$set" : {"star" : receive_star, "review" : receive_review}})
     return jsonify({'msg' : '수정완료!'})
 
 #card-삭제하기
