@@ -106,18 +106,21 @@ def api_login():
     # 로그아웃
 @app.route('/api/logout', methods=['POST'])
 def api_logout():
-    # 쿠키에서 토큰을 가져옵니다.
-    token = request.cookies.get('token')
-
-    # 토큰이 있다면, 로그아웃 처리합니다.
-    if token:
-        # 쿠키에서 토큰을 삭제합니다.
-        response = jsonify({'result': 'success'})
-        response.delete_cookie('token')
-        return response
-    # 토큰이 없다면, 이미 로그아웃된 상태입니다.
-    else:
-        return jsonify({'result': 'fail', 'msg': '이미 로그아웃된 상태입니다.'})
+    token_receive = request.headers.get('Authorization')
+    
+    try:
+        # 토큰에서 유저정보 디코딩
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_id = payload['id']
+        
+        # 디코딩이 성공하면 토큰을 블랙리스트에 추가합니다.
+        db.blacklist.insert_one({'token': token_receive})
+        
+        return jsonify({'result': 'success', 'msg': '로그아웃 되었습니다.'})
+    
+    except jwt.exceptions.DecodeError:
+        # 토큰 디코딩 실패 시
+        return jsonify({'result': 'fail', 'msg': '올바른 토큰이 아닙니다.'})
 
 
 # 보안: 로그인한 사용자만 통과할 수 있는 API
