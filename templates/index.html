@@ -21,13 +21,28 @@
             font-family: 'Gowun Dodum', sans-serif;
         }
 
+        .wrap {
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('http://www.chemicalnews.co.kr/news/photo/202106/3516_10118_3834.jpg');
+            background-position: center;
+            background-size: cover;
+
+        }
+
+        .wrap2 {
+            display: flex;
+        }
+
+        .mystate {
+            width: 95%;
+            text-align: right;
+
+
+            color: white;
+        }
+
         .mytitle {
             width: 100%;
             height: 250px;
-
-            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
-            background-position: center;
-            background-size: cover;
 
             color: white;
 
@@ -75,13 +90,13 @@
         }
 
         .mypost {
-            width: 95%;
-            max-width: 500px;
-            margin: 20px auto 0px auto;
+            width: 500px;
+            margin: 20px 50px 0px 510px;
             padding: 20px;
             box-shadow: 0px 0px 3px 0px gray;
+            background-color: gray;
+            float: center;
 
-            display: none;
         }
 
         .mybtns {
@@ -104,12 +119,47 @@
         .card_btn {
             text-align: right;
         }
+
+        .finder {
+            width: 400px;
+            margin-top: 100px;
+        }
     </style>
     <script>
         $(document).ready(function () {
             listing();
+            nickname();
+            nickname_listing();
         });
 
+        //nickname으로 사용자를 표시하기, Logout기능
+        function nickname() {
+            $('#nickname-box').empty()
+            $.ajax({
+                type: "GET",
+                url: "/api/isAuth",
+                data: {},
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        // 로그인한 사용자면 닉네임을 보여주는 알람을 띄움!
+                        let nickname = response['nickname']
+
+                        let temp_html = `<h5 id="nickname">안녕하세요 ${nickname} 님</h5>
+                                    <button onclick="logout()" type="button" class="btn btn-light btn-sm">LOGOUT</button>`
+                        $('#nickname-box').append(temp_html)
+                    } else {
+                        alert(response['msg'])
+                        window.location.href = '/login'
+                    }
+                }
+            })
+        }
+
+        function nickname_listing() {
+            let nickname = $('')
+        }
+
+        // 카드를 리스트에 올리기
         function listing() {
             fetch('/booksbooks').then((res) => res.json()).then((data) => {
                 let rows = JSON.parse(data['result']);
@@ -143,26 +193,8 @@
                                                     <p id = 'content' class="card-review">${review}</p>
                                                 </div>
                                                 <div class="card_btn">
-                                                    <button onclick="open_editbox()" type="button" class="btn btn-dark">수정</button>
+                                                    <button onclick="open_edit('${id}')" type="button" class="btn btn-dark">수정</button>
                                                     <button onclick="delete_card('${id}')" type="button" class="btn btn-dark">삭제</button>
-                                                </div>
-                                                <div class="myedit" id="edit-box">
-                                                    <div class="form-floating">
-                                                        <textarea id="edit-review" class="form-control" placeholder="Leave a comment here"></textarea>
-                                                        <label for="floatingTextarea2">한 줄평을 수정해주세요</label>
-                                                        <div class="input-group mb-3">
-                                                            <label class="input-group-text" for="inputGroupSelect01">별점</label>
-                                                            <select class="form-select" id="edit-star">
-                                                                <option selected>-- 선택하기 --</option>
-                                                                <option value="1">⭐</option>
-                                                                <option value="2">⭐⭐</option>
-                                                                <option value="3">⭐⭐⭐</option>
-                                                                <option value="4">⭐⭐⭐⭐</option>
-                                                                <option value="5">⭐⭐⭐⭐⭐</option>
-                                                            </select>
-                                                        </div>
-                                                        <button onclick="save_edit('${id}')" type="button" class="btn btn-dark">저장하기</button>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -174,11 +206,13 @@
         }
 
         function posting() {
+            let nickname = $('#nickname').val()
             let url = $('#url').val()
             let review = $('#review').val()
             let star = $('#star').val()
 
             let formData = new FormData();
+            formData.append("nickname_give", nickname)
             formData.append("url_give", url);
             formData.append("review_give", review);
             formData.append("star_give", star)
@@ -189,7 +223,7 @@
             })
         }
 
-        
+
         function delete_card(id) {
             let delete_id = id;
             let formData = new FormData();
@@ -201,208 +235,219 @@
             })
         }
 
-        function save_edit(id) {
-            let edit_id = id
-            let edit_review = $('#edit-review').val()
-            let edit_star = $('#edit-star').val()
-
-            let formData = new FormData();
-            formData.append("edit_id",id)
-            formData.append("review_edit", edit_review);
-            formData.append("star_edit", edit_star)
-
-            fetch('/booksbooks/edit', { method: "POST", body: formData }).then((res) => res.json()).then((data) => {
-                alert(data['msg'])
-                window.location.reload()
-            })
-        }
 
 
-        function open_box() {
-            $('#post-box').show()
-        }
-        function close_box() {
-            $('#post-box').hide()
-        }
-
-        function open_editbox() {
+        function open_editbox(id) {
             $('#edit-box').show()
+        }
+
+        function logout() {
+            // 쿠키와 로컬스토리지에서 mytoken 제거
+            $.removeCookie('mytoken');
+            localStorage.removeItem('mytoken');
+
+            // 서버 측에서 세션 정보 삭제
+            fetch('/api/logout', { method: 'POST' }).then((res) => res.json()).then((data) => {
+                if (data['result'] == 'success') {
+                    window.location.reload();
+                } else {
+                    alert(data['msg']);
+                }
+            })
         }
     </script>
 </head>
 
 <body>
-    <div class="mytitle">
-        <h1>북스북스 나의 도서 한줄평</h1>
-        <button onclick="open_box()">독서 한줄평 기록하기</button>
-    </div>
-    <div class="mypost" id="post-box">
-        <div class="form-floating mb-3">
-            <input id="url" type="email" class="form-control" placeholder="name@example.com">
-            <label>도서 URL</label>
+    <div class="wrap">
+        <div class="mystate" id="nickname-box">
+            <h5 id="nickname">안녕하세요 NICKNAME 님</h5>
+            <button onclick="logout()" type="button" class="btn btn-light btn-sm">LOGOUT</button>
         </div>
-        <div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupSelect01">별점</label>
-            <select class="form-select" id="star">
-                <option selected>-- 선택하기 --</option>
-                <option value="1">⭐</option>
-                <option value="2">⭐⭐</option>
-                <option value="3">⭐⭐⭐</option>
-                <option value="4">⭐⭐⭐⭐</option>
-                <option value="5">⭐⭐⭐⭐⭐</option>
-            </select>
+        <div class="mytitle">
+            <h1>북스북스 나의 도서 한줄평</h1>
         </div>
-        <div class="form-floating">
-            <textarea id="review" class="form-control" placeholder="Leave a comment here"></textarea>
-            <label for="floatingTextarea2">여기에 한 줄평을 남겨주세요</label>
+        <div class="wrap2">
+            <div class="mypost" id="post-box">
+                <div class="form-floating mb-3">
+                    <input id="url" type="email" class="form-control" placeholder="name@example.com">
+                    <label>도서 URL</label>
+                </div>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                    <select class="form-select" id="star">
+                        <option selected>-- 선택하기 --</option>
+                        <option value="1">⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                    </select>
+                </div>
+                <div class="form-floating">
+                    <textarea id="review" class="form-control" placeholder="Leave a comment here"></textarea>
+                    <label for="floatingTextarea2">여기에 한 줄평을 남겨주세요</label>
+                </div>
+                <div class="mybtns">
+                    <button onclick="posting()" type="button" class="btn btn-dark">저장하고 싶으면 여기를 CLICK</button>
+                </div>
+            </div>
+            <div class="finder">
+                <div class="input-group mb-3">
+                    <button class="btn btn-outline-secondary btn-dark" type="button" id="visit">방문하기</button>
+                    <select class="form-select" id="inputGroupSelect03" aria-label="Example select with button addon">
+                        <option selected>다른 분의 한줄평 구경가기</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+            </div>
         </div>
-        <div class="mybtns">
-            <button onclick="posting()" type="button" class="btn btn-dark">저장하기</button>
-            <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
-        </div>
-    </div>
 
-    <div class="mycards">
-        <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
-            <div class="col">
-                <div class="card mb-3" style="max-width: 540px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
-                                alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h4 class="card-title">책 제목이 들어가요</h4>
-                                <h4>[나의 별점은]: 별점</h4>
+        <div class="mycards">
+            <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+                <div class="col">
+                    <div class="card mb-3" style="max-width: 540px;">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                    alt="...">
                             </div>
-                        </div>
-                        <div class="bottom">
-                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
-                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
-                        </div>
-                        <div class="card_btn">
-                            <button onclick="open_editbox()" type="button" class="btn btn-dark">수정</button>
-                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
-                        </div>
-                        <div class="myedit" id="edit-box">
-                            <div class="form-floating">
-                                <textarea id="edit-review" class="form-control" placeholder="Leave a comment here"></textarea>
-                                <label for="floatingTextarea2">한 줄평을 수정해주세요</label>
-                                <div class="input-group mb-3">
-                                    <label class="input-group-text" for="inputGroupSelect01">별점을 수정해주세요</label>
-                                    <select class="form-select" id="edit-star">
-                                        <option selected>-- 선택하기 --</option>
-                                        <option value="1">⭐</option>
-                                        <option value="2">⭐⭐</option>
-                                        <option value="3">⭐⭐⭐</option>
-                                        <option value="4">⭐⭐⭐⭐</option>
-                                        <option value="5">⭐⭐⭐⭐⭐</option>
-                                    </select>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h4 class="card-title">책 제목이 들어가요</h4>
+                                    <h4>[나의 별점은]: 별점</h4>
                                 </div>
-                                <button onclick="save_edit()" type="button" class="btn btn-dark">저장하기</button>
+                            </div>
+                            <div class="bottom">
+                                <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                                <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                            </div>
+                            <div class="card_btn">
+                                <button onclick="open_editbox()" type="button" class="btn btn-dark">수정</button>
+                                <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            </div>
+                            <div class="myedit" id="edit-box">
+                                <div class="form-floating">
+                                    <textarea id="edit-review" class="form-control"
+                                        placeholder="Leave a comment here"></textarea>
+                                    <label for="floatingTextarea2">한 줄평을 수정해주세요</label>
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="inputGroupSelect01">별점을 수정해주세요</label>
+                                        <select class="form-select" id="edit-star">
+                                            <option selected>-- 선택하기 --</option>
+                                            <option value="1">⭐</option>
+                                            <option value="2">⭐⭐</option>
+                                            <option value="3">⭐⭐⭐</option>
+                                            <option value="4">⭐⭐⭐⭐</option>
+                                            <option value="5">⭐⭐⭐⭐⭐</option>
+                                        </select>
+                                    </div>
+                                    <button onclick="save_edit()" type="button" class="btn btn-dark">저장하기</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="card mb-3" style="max-width: 540px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
-                                alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h4 class="card-title">책 제목이 들어가요</h4>
-                                <h4>[나의 별점은]: 별점</h4>
+                <div class="col">
+                    <div class="card mb-3" style="max-width: 540px;">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                    alt="...">
                             </div>
-                        </div>
-                        <div class="bottom">
-                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
-                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
-                        </div>
-                        <div class="card_btn">
-                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
-                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h4 class="card-title">책 제목이 들어가요</h4>
+                                    <h4>[나의 별점은]: 별점</h4>
+                                </div>
+                            </div>
+                            <div class="bottom">
+                                <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                                <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                            </div>
+                            <div class="card_btn">
+                                <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                                <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="card mb-3" style="max-width: 540px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
-                                alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h4 class="card-title">책 제목이 들어가요</h4>
-                                <h4>[나의 별점은]: 별점</h4>
+                <div class="col">
+                    <div class="card mb-3" style="max-width: 540px;">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                    alt="...">
                             </div>
-                        </div>
-                        <div class="bottom">
-                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
-                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
-                        </div>
-                        <div class="card_btn">
-                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
-                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h4 class="card-title">책 제목이 들어가요</h4>
+                                    <h4>[나의 별점은]: 별점</h4>
+                                </div>
+                            </div>
+                            <div class="bottom">
+                                <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                                <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                            </div>
+                            <div class="card_btn">
+                                <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                                <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="card mb-3" style="max-width: 540px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
-                                alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h4 class="card-title">책 제목이 들어가요</h4>
-                                <h4>[나의 별점은]: 별점</h4>
+                <div class="col">
+                    <div class="card mb-3" style="max-width: 540px;">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                    alt="...">
                             </div>
-                        </div>
-                        <div class="bottom">
-                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
-                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
-                        </div>
-                        <div class="card_btn">
-                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
-                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h4 class="card-title">책 제목이 들어가요</h4>
+                                    <h4>[나의 별점은]: 별점</h4>
+                                </div>
+                            </div>
+                            <div class="bottom">
+                                <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                                <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                            </div>
+                            <div class="card_btn">
+                                <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                                <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col">
-                <div class="card mb-3" style="max-width: 540px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
-                                alt="...">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h4 class="card-title">책 제목이 들어가요</h4>
-                                <h4>[나의 별점은]: 별점</h4>
+                <div class="col">
+                    <div class="card mb-3" style="max-width: 540px;">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <img src="http://image.yes24.com/goods/117075493/XL" class="img-fluid rounded-start"
+                                    alt="...">
                             </div>
-                        </div>
-                        <div class="bottom">
-                            <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
-                            <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
-                        </div>
-                        <div class="card_btn">
-                            <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
-                            <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h4 class="card-title">책 제목이 들어가요</h4>
+                                    <h4>[나의 별점은]: 별점</h4>
+                                </div>
+                            </div>
+                            <div class="bottom">
+                                <p class="card-desc">[책 소개]: 책 소개가 들어가요</p>
+                                <p class="card-review">[나의 한줄평]: 나의 한줄평이 들어가요</p>
+                            </div>
+                            <div class="card_btn">
+                                <button onclick="edit_card()" type="button" class="btn btn-dark">수정</button>
+                                <button onclick="delete_card()" type="button" class="btn btn-dark">삭제</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 </body>
