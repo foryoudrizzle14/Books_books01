@@ -102,6 +102,22 @@ def api_login():
     # 찾지 못하면
     else:
         return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
+    
+    # 로그아웃
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    # 쿠키에서 토큰을 가져옵니다.
+    token = request.cookies.get('token')
+
+    # 토큰이 있다면, 로그아웃 처리합니다.
+    if token:
+        # 쿠키에서 토큰을 삭제합니다.
+        response = jsonify({'result': 'success'})
+        response.delete_cookie('token')
+        return response
+    # 토큰이 없다면, 이미 로그아웃된 상태입니다.
+    else:
+        return jsonify({'result': 'fail', 'msg': '이미 로그아웃된 상태입니다.'})
 
 
 # 보안: 로그인한 사용자만 통과할 수 있는 API
@@ -120,10 +136,14 @@ def api_valid():
     except jwt.exceptions.DecodeError:
         # 로그인 정보가 없으면 에러가 납니다!
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+    
+#사용자 정보 받아오기
+
 
 # Posting으로 받아오기
 @app.route("/booksbooks", methods=["POST"])
 def book_post():
+    nickname_receive = request.form['nickname_give']
     url_receive = request.form['url_give']
     review_receive = request.form['review_give']
     star_receive = request.form['star_give']
@@ -133,12 +153,13 @@ def book_post():
 
     soup = BeautifulSoup(data.text, 'html.parser')
 
-    title_receive = soup.select_one('#yDetailTopWrap > div.topColRgt > div.gd_infoTop > div > h2').text
-    desc_receive = soup.select_one('#infoset_introduce > div.infoSetCont_wrap > div.infoWrap_txt > div').text
+    title_receive = soup.select_one('.gd_name').text
+    desc_receive = soup.select_one('.infoWrap_txt').text
     #이미지부분 클래스로 받아오기
     image_receive = soup.select_one('.gImg')['src']
 
     doc = {
+        'nickname':nickname_receive,
         'title':title_receive,
         'desc':desc_receive,
         'image':image_receive,
