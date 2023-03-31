@@ -54,11 +54,10 @@ def api_register():
     id_receive = request.form['id_give']
     pw_receive = request.form['pw_give']
     nickname_receive = request.form['nickname_give']
-    retype_pw_receive = request.form['retype_pw_give']
 
-    if not id_receive or not pw_receive or not nickname_receive or not retype_pw_receive :
-        # 필수 입력 항목이 비어 있는지 확인하고, 하나라도 비어 있다면 오류 메시지를 반환함
-        return jsonify({'result': '입력되지 않은 값이 있습니다.'})
+    # if not id_receive or not pw_receive or not nickname_receive or not retype_pw_receive :
+    #     # 필수 입력 항목이 비어 있는지 확인하고, 하나라도 비어 있다면 오류 메시지를 반환함
+    #     return jsonify({'result': '입력되지 않은 값이 있습니다.'})
     
     # if pw_receive != retype_pw_receive:
     #     # 입력받은 비밀번호가 일치하는지 하고 일치하지 않으면 오류 메세지를 반환함

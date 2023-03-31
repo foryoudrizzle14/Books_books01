@@ -22,7 +22,7 @@
 
       function register() {
         // 서버에 입력된 회원 정보를 전달하는 함수
-        if (check_pw()) {
+        if (validateregister()) {
           // 비밀번호 체크 true의 경우에만 API 호출
           $.ajax({
             type: "POST",
@@ -30,7 +30,6 @@
             data: {
               id_give: $("#userid").val(),
               pw_give: $("#userpw").val(),
-              retype_pw_give: $("#user_pw_Confirm").val(),
               nickname_give: $("#usernick").val(),
             },
             success: function (response) {
@@ -38,34 +37,44 @@
               if (response["result"] == "success") {
                 alert("회원가입이 완료되었습니다.");
                 window.location.href = "/login";
-              } else {
-                // 화원 가입 실패시 서버로부터 반환 받은 메세지를 alert으로 출력
-                alert(response["result"]);
-              }
+              } 
+              // else {
+              //   // 화원 가입 실패시 서버로부터 반환 받은 메세지를 alert으로 출력
+              //   alert(response["result"]);
+              // }
             },
           });
         }
       }
 
-      function check_pw_length() {
-        // 입력된 비밀번호 길이를 검사하여 조건에 맞지 않는 경우 alert 출력
-        var pw = document.getElementById("userpw").value;
-        if (pw.length < 6 || pw.length > 16) {
-          alert("비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.");
-          document.getElementById("userpw").value = "";
-        }
-      }
+      // function check_pw_length() {
+      //   // 입력된 비밀번호 길이를 검사하여 조건에 맞지 않는 경우 alert 출력
+      //   var pw = document.getElementById("userpw").value;
+      //   if (pw.length < 6 || pw.length > 16) {
+      //     alert("비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.");
+      //     document.getElementById("userpw").value = "";
+      //   }
+      // }
 
-      function check_pw() {
+      function validateregister() { 
         // 비밀번호 유효성 검사
         // 비밀번호와 비밀번호 확인의 값을 검사하여 결과 출력
+        var id = document.getElementById("userid").value;
+        var nick = document.getElementById("usernick").value;
         var pw = document.getElementById("userpw").value;
         var confirmPw = document.getElementById("user_pw_Confirm").value;
         var matchMsg = "비밀번호가 일치합니다.";
         var unmatchMsg = "비밀번호가 일치하지 않습니다.";
         var lengthMsg = "비밀번호는 6글자 이상, 16글자 이하만 이용 가능합니다.";
+        var requiredMsg = "필수 입력 항목을 모두 채워주세요.";
         var check = document.getElementById("check");
 
+        if (id === "" || pw === "" || nick === "" || confirmPw === "") {
+          // 필수 입력값이 하나라도 비어 있는 경우에 동작
+          check.textContent = requiredMsg
+          check.style.color = "red";
+          return false; // false 값을 반환하여 API 호출되지 않도록 함
+        }
         if (pw.length < 6 || pw.length > 16) {
           // 비밀번호의 글자수를 세서 6글자보다 작거나 16글자보다 많으면 실행됨
           check.textContent = lengthMsg;
@@ -121,7 +130,7 @@
             <div class="field">
               <div class="control">
                 <input
-                  type="text"
+                  type="email"
                   class="input"
                   id="userid"
                   aria-describedby="emailHelp"
@@ -160,7 +169,7 @@
                   class="input"
                   id="userpw"
                   placeholder="Password"
-                  onchange="check_pw()"
+                  onchange="validateregister()"
                 />
               </div>
             </div>
